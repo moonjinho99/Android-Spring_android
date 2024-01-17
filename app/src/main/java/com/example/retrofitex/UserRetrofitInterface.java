@@ -13,4 +13,7 @@ public interface UserRetrofitInterface {
 
     @POST("save-user")
     Call<ResponseBody> saveUser(@Body UserDTO jsonUser);
+
+    @POST("finduser")
+    Call<ResponseBody> findUser(@Body String username);
 }

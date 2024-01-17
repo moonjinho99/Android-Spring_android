@@ -3,7 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
-
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -15,11 +16,13 @@
         android:theme="@style/Theme.RetrofitEx"
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
+        <meta-data android:name="com.kakao.sdk.AppKey" android:value="403c6d082fa42ff8b95e5503fa488811"/>
         <activity
             android:name=".MemberActivity"
             android:exported="false"
             android:label="@string/title_activity_member"
             android:theme="@style/Theme.RetrofitEx" />
+        <activity android:name=".MapActivity" android:exported="false"/>
         <activity
             android:name=".MainActivity"
             android:exported="true">

@@ -19,6 +19,8 @@ import androidx.navigation.ui.NavigationUI;
 
 import com.example.retrofitex.databinding.UmbrellalistBinding;
 
+import java.util.List;
+
 public class UmbrellalistActivity extends AppCompatActivity {
 
     TextView name;
@@ -39,16 +41,30 @@ public class UmbrellalistActivity extends AppCompatActivity {
 
         name.setText(addname);
 
-        adapter.addItem(new ListItem("1번","2000"));
-        adapter.addItem(new ListItem("1번","2000"));
-        adapter.addItem(new ListItem("1번","2000"));
-        adapter.addItem(new ListItem("1번","2000"));
-        adapter.addItem(new ListItem("1번","2000"));
-        adapter.addItem(new ListItem("1번","2000"));
-        adapter.addItem(new ListItem("1번","2000"));
-        adapter.addItem(new ListItem("1번","2000"));
+        List<ListItem> lists = MapActivity.listItems;
+
+        for(int i=0; i<lists.size(); i++)
+        {
+            adapter.addItem(lists.get(i));
+        }
 
         gridView.setAdapter(adapter);
+
+//        adapter.addItem(new ListItem("1번","2000"));
+//        adapter.addItem(new ListItem("1번","2000"));
+//        adapter.addItem(new ListItem("1번","2000"));
+//        adapter.addItem(new ListItem("1번","2000"));
+//        adapter.addItem(new ListItem("1번","2000"));
+//        adapter.addItem(new ListItem("1번","2000"));
+//        adapter.addItem(new ListItem("1번","2000"));
+//        adapter.addItem(new ListItem("1번","2000"));
+//
+//        gridView.setAdapter(adapter);
+
+
+
+
+
     }
 
 }

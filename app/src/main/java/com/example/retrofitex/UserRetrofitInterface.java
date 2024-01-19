@@ -1,5 +1,7 @@
 package com.example.retrofitex;
 
+import java.util.List;
+
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
@@ -16,4 +18,7 @@ public interface UserRetrofitInterface {
 
     @POST("finduser")
     Call<ResponseBody> findUser(@Body String username);
+
+    @GET("find_list")
+    Call<List<ListItem>> findList();
 }

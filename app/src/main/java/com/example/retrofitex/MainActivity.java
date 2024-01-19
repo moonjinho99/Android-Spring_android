@@ -70,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
 
                 Log.e("JSON",userInfo);
 
-                Call<ResponseBody> call = userRetrofitInterface.saveUser(userDTO);;
+                Call<ResponseBody> call = userRetrofitInterface.saveUser(userDTO);
                 call.clone().enqueue(new Callback<ResponseBody>() {
                     @Override
                     public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {

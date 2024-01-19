@@ -18,6 +18,8 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
+import com.google.gson.Gson;
+
 import net.daum.mf.map.api.MapPOIItem;
 import net.daum.mf.map.api.MapPoint;
 import net.daum.mf.map.api.MapPointBounds;
@@ -30,6 +32,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import okhttp3.ResponseBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class MapActivity extends AppCompatActivity implements MapView.CurrentLocationEventListener, MapView.MapViewEventListener, MapView.POIItemEventListener{
 
     private MapView mapView;
@@ -39,12 +46,20 @@ public class MapActivity extends AppCompatActivity implements MapView.CurrentLoc
 
     private MapPOIItem marker;
 
+    private UserRetrofitInterface userRetrofitInterface;
+
+    private RetrofitClient retrofitClient;
+    static List<ListItem> listItems;
+
 
     double latitude,longitude;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.map);
+
+        retrofitClient = RetrofitClient.getInstance();
+        userRetrofitInterface = RetrofitClient.getUserRetrofitInterface();
 
         // 권한ID를 가져옵니다
         int permission = ContextCompat.checkSelfPermission(this,
@@ -236,11 +251,26 @@ public class MapActivity extends AppCompatActivity implements MapView.CurrentLoc
 
     @Override
     public void onCalloutBalloonOfPOIItemTouched(MapView mapView, MapPOIItem mapPOIItem, MapPOIItem.CalloutBalloonButtonType calloutBalloonButtonType) {
-        Toast.makeText(getApplicationContext(),mapPOIItem.getItemName(),Toast.LENGTH_SHORT).show();
 
-        Intent intent = new Intent(MapActivity.this,UmbrellalistActivity.class);
-        intent.putExtra("name",mapPOIItem.getItemName());
-        startActivity(intent);
+        Call<List<ListItem>> call = userRetrofitInterface.findList();
+
+        Toast.makeText(getApplicationContext(),mapPOIItem.getItemName(),Toast.LENGTH_SHORT).show();
+        call.clone().enqueue(new Callback<List<ListItem>>() {
+            @Override
+            public void onResponse(Call<List<ListItem>> call, Response<List<ListItem>> response) {
+                listItems = response.body();
+                Intent intent = new Intent(MapActivity.this,UmbrellalistActivity.class);
+                intent.putExtra("name",mapPOIItem.getItemName());
+                startActivity(intent);
+            }
+
+            @Override
+            public void onFailure(Call<List<ListItem>> call, Throwable t) {
+                Toast.makeText(getApplicationContext(),"통신 오류",Toast.LENGTH_SHORT).show();
+            }
+        });
+
+
 
     }
 

@@ -2,29 +2,45 @@ package com.example.retrofitex;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Base64;
 import android.util.Log;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
+import net.daum.mf.map.api.MapPOIItem;
 import net.daum.mf.map.api.MapPoint;
+import net.daum.mf.map.api.MapPointBounds;
 import net.daum.mf.map.api.MapView;
 
+import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
-public class MapActivity extends AppCompatActivity implements MapView.CurrentLocationEventListener, MapView.MapViewEventListener{
+public class MapActivity extends AppCompatActivity implements MapView.CurrentLocationEventListener, MapView.MapViewEventListener, MapView.POIItemEventListener{
 
     private MapView mapView;
     private ViewGroup mapViewContainer;
+
+    private List<AddrDTO> addrList;
+
+    private MapPOIItem marker;
+
+
+    double latitude,longitude;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -52,16 +68,51 @@ public class MapActivity extends AppCompatActivity implements MapView.CurrentLoc
             return;
         }
 
+
+        addrList = new ArrayList<>();
+
+        AddrDTO addrDTO = new AddrDTO();
+
+        addrDTO.setAddr("서울 중랑구 망우로 287");
+        addrDTO.setName("학원");
+
+        addrList.add(addrDTO);
+
+        AddrDTO addrDTO2 = new AddrDTO();
+
+        addrDTO2.setAddr("경기도 구리시 응달말로 40번길 13");
+        addrDTO2.setName("집");
+
+        addrList.add(addrDTO2);
+
+
         //지도를 띄우자
-        // java code
         mapView = new MapView(this);
         mapViewContainer = (ViewGroup) findViewById(R.id.map_view);
         mapViewContainer.addView(mapView);
         mapView.setMapViewEventListener(this);
         mapView.setCurrentLocationTrackingMode(MapView.CurrentLocationTrackingMode.TrackingModeOnWithoutHeading);
 
-    }
+        for(int i=0; i<addrList.size(); i++)
+        {
+            getLatLngFromAddress(addrList.get(i).getAddr());
 
+            MapPoint mapPoint = MapPoint.mapPointWithGeoCoord(latitude, longitude);
+
+            marker = new MapPOIItem();
+            marker.setItemName(addrList.get(i).getName());
+            marker.setTag(i);
+            marker.setMapPoint(mapPoint);
+            marker.setMarkerType(MapPOIItem.MarkerType.BluePin); // Set the marker type
+
+            mapView.addPOIItem(marker);
+
+            mapView.setMapCenterPoint(mapPoint, true);
+        }
+
+        mapView.setPOIItemEventListener(this);
+
+    }
     // 권한 체크 이후로직
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grandResults) {
@@ -82,6 +133,29 @@ public class MapActivity extends AppCompatActivity implements MapView.CurrentLoc
             if (check_result == false) {
                 finish();
             }
+        }
+    }
+
+    private void getLatLngFromAddress(String address) {
+        Geocoder geocoder = new Geocoder(this);
+
+        try {
+            List<Address> addresses = geocoder.getFromLocationName(address, 1);
+
+            if (addresses != null && addresses.size() > 0) {
+                Address firstAddress = addresses.get(0);
+
+                latitude = firstAddress.getLatitude();
+                longitude = firstAddress.getLongitude();
+
+                Log.d("LatLng", "Latitude: " + latitude + ", Longitude: " + longitude);
+
+                // Now you have the latitude and longitude
+            } else {
+                Log.e("Geocoding", "No results found");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -148,5 +222,29 @@ public class MapActivity extends AppCompatActivity implements MapView.CurrentLoc
     @Override
     public void onMapViewMoveFinished(MapView mapView, MapPoint mapPoint) {
 
+    }
+
+    @Override
+    public void onPOIItemSelected(MapView mapView, MapPOIItem mapPOIItem) {
+
+    }
+
+    @Override
+    public void onCalloutBalloonOfPOIItemTouched(MapView mapView, MapPOIItem mapPOIItem) {
+
+    }
+
+    @Override
+    public void onCalloutBalloonOfPOIItemTouched(MapView mapView, MapPOIItem mapPOIItem, MapPOIItem.CalloutBalloonButtonType calloutBalloonButtonType) {
+        Toast.makeText(getApplicationContext(),mapPOIItem.getItemName(),Toast.LENGTH_SHORT).show();
+
+        Intent intent = new Intent(MapActivity.this,UmbrellalistActivity.class);
+        intent.putExtra("name",mapPOIItem.getItemName());
+        startActivity(intent);
+
+    }
+
+    @Override
+    public void onDraggablePOIItemMoved(MapView mapView, MapPOIItem mapPOIItem, MapPoint mapPoint) {
     }
 }
